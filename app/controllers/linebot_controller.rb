@@ -6,7 +6,7 @@ class LinebotController < ApplicationController
     @help_messages = ['ヘルプ', 'へるぷ', '使い方', 'つかいかた', 'help']
     @register_messages = ['する', '登録', 'do']
     @delete_messages = ['した', '消す', 'やった', '終わった', '削除', 'done']
-    @all_delete_messages = ['全部消す', '全て削除', 'すべて削除', '全削除']
+    @all_delete_messages = ['全部消す', 'すべてけす', '全て消す', '全て削除', 'すべて削除', '全削除']
   end
 
 
