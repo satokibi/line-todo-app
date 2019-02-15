@@ -82,7 +82,10 @@ class LinebotController < ApplicationController
                 "## 使い方を見る時\n" +
                 "ヘルプ\n" +
                 "## タスクを全て削除する\n" +
-                "全削除\n"
+                "全削除\n" +
+                "\n" +
+                "詳しくは以下のサイトで\n" +
+                "https://satokibi.github.io/line-todo-app/"
 
       when *@all_delete_messages
         return delete_all_todo(event)
