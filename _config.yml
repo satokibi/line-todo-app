@@ -1,1 +1,6 @@
+title: ToDo管理bot
+logo: /assets/logo.png
+description: lineでtodo管理できるbotだよ
+show_downloads: false
+google_analytics:
 theme: jekyll-theme-minimal
