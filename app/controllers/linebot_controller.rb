@@ -83,6 +83,7 @@ class LinebotController < ApplicationController
                 "ヘルプ\n" +
                 "## タスクを全て削除する\n" +
                 "全削除\n"
+
       when *@all_delete_messages
         return delete_all_todo(event)
       else
@@ -90,12 +91,16 @@ class LinebotController < ApplicationController
         if user_message.delete("0-9").in?(@delete_messages)
           # 入力に含まれる数字の数
           num_count_in_split_message = user_message.scan(/\d+/).length
+          logger.debug(num_count_in_split_message)
           if num_count_in_split_message == 0
+            logger.debug("num count => 0")
             return "削除するタスクの番号を１つ入れてね\n例: 1 した, 1 削除, 1 やった"
           elsif num_count_in_split_message == 1
             # 入力に含まれる数が１つならその番号のタスクを削除
-            return delete_todo(event, user_message.delete("^0-9"))
+            logger.debug("num count => 1")
+            return delete_todo(event, [user_message.delete("^0-9")])
           else
+            logger.debug("num count => else")
             return "1つずつしか削除できないよ(T_T)!"
           end
         else
@@ -142,7 +147,7 @@ class LinebotController < ApplicationController
       todo = Todo.new(title: sp.join(' '), user: event['source']['userId'])
       if todo.save
         todos = Todo.where(user: event['source']['userId'])
-        return "登録しました!\n" + make_todo(todos)
+        return "#{todo.title} を登録したよ！\n" + make_todo(todos)
       else
         return '登録失敗しました...'
       end
@@ -151,7 +156,7 @@ class LinebotController < ApplicationController
     def delete_todo(event, sp)
       todos = Todo.where(user: event['source']['userId'])
       if( todos.length == 0 )
-        return "いまタスクはないよ！"
+        return "今のタスクはないよ！"
       end
 
       if( sp.length > 2 )
@@ -170,9 +175,14 @@ class LinebotController < ApplicationController
 
       delete_id = todos[sp[0].to_i].id
       delete_todo = Todo.find(delete_id)
+      delete_todo_title = delete_todo.title
       if delete_todo.destroy
         todos = Todo.where(user: event['source']['userId'])
-        return "お疲れ様です！残りのタスクだよ\n" + make_todo(todos)
+        if todos.length == 0
+          return "#{delete_todo_title} を完了したよ。\nお疲れ様！\n残りのタスクはないよ！"
+        else
+          return "#{delete_todo_title} を完了したよ。\nお疲れ様！\n残りのタスクだよ\n" + make_todo(todos)
+        end
       else
         return "削除に失敗しました...(T_T)"
       end
@@ -181,13 +191,14 @@ class LinebotController < ApplicationController
     def delete_all_todo( event )
       todos = Todo.where(user: event['source']['userId'])
       success_flag = true
+      delete_todos_title = make_todo(todos)
       todos.each do |todo|
         if !todo.destroy
           success_flag = false
         end
       end
       if success_flag
-        return "全てのタスクを削除しました"
+        return "以下の全てのタスクを削除しました！\n#{delete_todos_title}"
       else
         return "削除に失敗しました...(T_T)"
       end
